@@ -1,0 +1,40 @@
+{
+  "admin": {
+    "nome": "Administrador",
+    "descricao": "Acesso completo ao sistema",
+    "permissoes": ["*"]
+  },
+  "coordenador": {
+    "nome": "Coordenador Pedagógico",
+    "descricao": "Acesso à gestão de alunos, ocorrências e processos",
+    "permissoes": [
+      "alunos.*",
+      "ocorrencias.*",
+      "processos.*",
+      "relatorios.ver",
+      "notificacoes.ver"
+    ]
+  },
+  "professor": {
+    "nome": "Professor",
+    "descricao": "Acesso para registrar ocorrências e acompanhar processos",
+    "permissoes": [
+      "alunos.ver",
+      "ocorrencias.criar",
+      "ocorrencias.ver",
+      "processos.ver",
+      "notificacoes.ver"
+    ]
+  },
+  "secretaria": {
+    "nome": "Secretaria Acadêmica",
+    "descricao": "Acesso para gestão de alunos e relatórios",
+    "permissoes": [
+      "alunos.*",
+      "ocorrencias.ver",
+      "processos.ver",
+      "relatorios.ver"
+    ]
+  }
+  
+}

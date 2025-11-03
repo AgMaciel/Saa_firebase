@@ -1,0 +1,31 @@
+{
+  "sistema": {
+    "nome": "SAA - Sistema de Gestão Discente",
+    "versao": "1.0.0",
+    "desenvolvedor": "Equipe SAA",
+    "ano": 2024
+  },
+  "configuracoes": {
+    "idioma": "pt-BR",
+    "fusoHorario": "America/Sao_Paulo",
+    "formatoData": "DD/MM/YYYY",
+    "formatoHora": "HH:mm",
+    "itensPorPagina": 10
+  },
+  "seguranca": {
+    "tamanhoMinimoSenha": 6,
+    "expiracaoSenhaDias": 90,
+    "tentativasLogin": 3,
+    "bloqueioTemporarioMinutos": 30
+  },
+  "notificacoes": {
+    "email": true,
+    "push": true,
+    "som": false
+  },
+  "backup": {
+    "automatico": true,
+    "frequencia": "diario",
+    "manterBackups": 7
+  }
+}

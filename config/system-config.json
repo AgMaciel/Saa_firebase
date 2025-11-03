@@ -1,0 +1,22 @@
+{
+  "database": {
+    "tipo": "localStorage",
+    "versao": "1.0.0",
+    "backupAutomatico": true
+  },
+  "ui": {
+    "tema": "claro",
+    "animacoes": true,
+    "densidade": "confortavel"
+  },
+  "performance": {
+    "cache": true,
+    "compressao": true,
+    "logs": true
+  },
+  "manutencao": {
+    "limpezaAutomatica": true,
+    "diasRetencao": 365,
+    "backupAutomatico": true
+  }
+}

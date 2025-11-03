@@ -1,0 +1,136 @@
+/* Gráficos e Relatórios */
+.chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+}
+
+.stats-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-left: 4px solid transparent;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card.primary { border-left-color: var(--primary-color); }
+.stats-card.success { border-left-color: var(--success-color); }
+.stats-card.warning { border-left-color: var(--warning-color); }
+.stats-card.danger { border-left-color: var(--danger-color); }
+.stats-card.info { border-left-color: var(--info-color); }
+
+.percentage-up {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.percentage-down {
+    color: var(--danger-color);
+    font-weight: 600;
+}
+
+/* Filtros */
+.filter-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+/* Tabelas de relatório */
+.table-report {
+    font-size: 0.875rem;
+}
+
+.table-report th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+    font-weight: 600;
+}
+
+/* Cards de métricas */
+.metric-value {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Gráficos responsivos */
+@media (max-width: 768px) {
+    .chart-container {
+        height: 250px;
+    }
+    
+    .metric-value {
+        font-size: 1.5rem;
+    }
+}
+
+/* Animações para gráficos */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.chart-fade-in {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Loading para gráficos */
+.chart-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: #6c757d;
+}
+
+.chart-loading i {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+/* Legendas de gráficos */
+.chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+}
+
+/* Tooltips personalizados */
+.chart-tooltip {
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}

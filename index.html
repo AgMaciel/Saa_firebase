@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAA - Sistema de Gestão Discente</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/reports.css">
+    <link rel="stylesheet" href="css/backup.css">
+    <link rel="stylesheet" href="css/notifications.css">
+</head>
+<body>
+    <!-- ==================== NAVBAR ==================== -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-graduation-cap me-2"></i>
+                SAA - Sistema Discente
+            </a>
+            
+            <!-- User Menu -->
+            <div class="navbar-nav ms-auto">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user me-1"></i>
+                        <span id="userName">Usuário</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#profile">
+                            <i class="fas fa-user-circle me-2"></i>Meu Perfil
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="auth.logout()">
+                            <i class="fas fa-sign-out-alt me-2"></i>Sair
+                        </a></li>
+                    </ul>
+                </li>
+
+                <!-- Notificações -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarNotifications" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-bell me-1"></i>
+                        Notificações
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                              id="badgeNotificacoesNavbar" style="display: none;">
+                            0
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" style="min-width: 300px;">
+                        <li><h6 class="dropdown-header">Notificações Recentes</h6></li>
+                        <div id="dropdownNotificacoes">
+                            <!-- Notificações recentes serão carregadas aqui -->
+                        </div>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-center" href="#" onclick="app.mostrarSecao('notificacoes')">
+                                <i class="fas fa-eye me-2"></i>Ver Todas
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- ==================== SIDEBAR ==================== -->
+            <div class="col-lg-2 col-md-3 d-none d-md-block">
+                <div class="sidebar-sticky">
+                    <div class="list-group">
+                        <a href="#dashboard" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a>
+                        <a href="#alunos" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users me-2"></i>Alunos
+                        </a>
+                        <a href="#ocorrencias" class="list-group-item list-group-item-action">
+                            <i class="fas fa-clipboard-list me-2"></i>Ocorrências
+                        </a>
+                        <a href="#processos" class="list-group-item list-group-item-action">
+                            <i class="fas fa-gavel me-2"></i>Processos Disciplinares
+                        </a>
+                        <a href="#relatorios" class="list-group-item list-group-item-action">
+                            <i class="fas fa-chart-bar me-2"></i>Relatórios
+                        </a>
+                        <a href="#backup" class="list-group-item list-group-item-action">
+                            <i class="fas fa-database me-2"></i>Backup
+                        </a>
+                        <a href="#notificacoes" class="list-group-item list-group-item-action">
+                            <i class="fas fa-bell me-2"></i>Notificações
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== CONTENT AREA ==================== -->
+            <div class="col-lg-10 col-md-9 col-12">
+                
+                <!-- ==================== DASHBOARD ==================== -->
+                <section id="dashboard" class="content-section">
+                    <div class="row">
+                        <div class="col-12">
+                            <h2>Dashboard</h2>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <div class="card text-white bg-primary">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Total Alunos</h5>
+                                            <h2 id="totalAlunos" class="card-text">0</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card text-white bg-warning">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Ocorrências</h5>
+                                            <h2 id="totalOcorrencias" class="card-text">0</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card text-white bg-danger">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Processos Ativos</h5>
+                                            <h2 id="totalProcessos" class="card-text">0</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card text-white bg-success">
+                                        <div class="card-body">
+                                            <h5 class="card-title">Suspensões</h5>
+                                            <h2 id="totalSuspensoes" class="card-text">0</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== ALUNOS ==================== -->
+                <section id="alunos" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2>Gestão de Alunos</h2>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAluno">
+                            <i class="fas fa-plus me-2"></i>Novo Aluno
+                        </button>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="tabelaAlunos">
+                                    <thead>
+                                        <tr>
+                                            <th>Matrícula</th>
+                                            <th>Nome</th>
+                                            <th>Curso</th>
+                                            <th>Status</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="corpoTabelaAlunos">
+                                        <!-- Dados serão carregados via JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== OCORRÊNCIAS ==================== -->
+                <section id="ocorrencias" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2>Registro de Ocorrências</h2>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalOcorrencia">
+                            <i class="fas fa-plus me-2"></i>Nova Ocorrência
+                        </button>
+                    </div>
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="tabelaOcorrencias">
+                                    <thead>
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Aluno</th>
+                                            <th>Tipo</th>
+                                            <th>Gravidade</th>
+                                            <th>Registrado por</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="corpoTabelaOcorrencias">
+                                        <!-- Dados serão carregados via JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== PROCESSOS DISCIPLINARES ==================== -->
+                <section id="processos" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2>Processos Disciplinares</h2>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProcesso">
+                            <i class="fas fa-plus me-2"></i>Novo Processo
+                        </button>
+                    </div>
+                    
+                    <!-- Filtros -->
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label class="form-label">Status</label>
+                                    <select class="form-control" id="filtroStatus">
+                                        <option value="">Todos</option>
+                                        <option value="aberto">Aberto</option>
+                                        <option value="em_andamento">Em Andamento</option>
+                                        <option value="concluido">Concluído</option>
+                                        <option value="arquivado">Arquivado</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Gravidade</label>
+                                    <select class="form-control" id="filtroGravidade">
+                                        <option value="">Todas</option>
+                                        <option value="leve">Leve</option>
+                                        <option value="grave">Grave</option>
+                                        <option value="gravissima">Gravíssima</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Data Início</label>
+                                    <input type="date" class="form-control" id="filtroDataInicio">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Data Fim</label>
+                                    <input type="date" class="form-control" id="filtroDataFim">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="tabelaProcessos">
+                                    <thead>
+                                        <tr>
+                                            <th>Nº Processo</th>
+                                            <th>Aluno</th>
+                                            <th>Data Abertura</th>
+                                            <th>Infração</th>
+                                            <th>Gravidade</th>
+                                            <th>Status</th>
+                                            <th>Prazo</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="corpoTabelaProcessos">
+                                        <!-- Dados serão carregados via JavaScript -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== RELATÓRIOS ==================== -->
+                <section id="relatorios" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Relatórios e Estatísticas</h2>
+                        <div class="btn-group">
+                            <button class="btn btn-outline-primary" onclick="exportarRelatorios()">
+                                <i class="fas fa-file-export me-2"></i>Exportar
+                            </button>
+                            <button class="btn btn-outline-success" onclick="imprimirRelatorios()">
+                                <i class="fas fa-print me-2"></i>Imprimir
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filtros -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Filtros do Relatório</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label">Período</label>
+                                    <select class="form-control" id="filtroPeriodo">
+                                        <option value="30">Últimos 30 dias</option>
+                                        <option value="90">Últimos 3 meses</option>
+                                        <option value="180">Últimos 6 meses</option>
+                                        <option value="365">Último ano</option>
+                                        <option value="custom">Personalizado</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Data Início</label>
+                                    <input type="date" class="form-control" id="filtroDataInicioRel">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Data Fim</label>
+                                    <input type="date" class="form-control" id="filtroDataFimRel">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label">Tipo de Relatório</label>
+                                    <select class="form-control" id="filtroTipoRelatorio">
+                                        <option value="geral">Geral</option>
+                                        <option value="ocorrencias">Ocorrências</option>
+                                        <option value="processos">Processos Disciplinares</option>
+                                        <option value="alunos">Situação dos Alunos</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <button class="btn btn-primary" onclick="carregarRelatorios()">
+                                        <i class="fas fa-sync me-2"></i>Atualizar Relatórios
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cards de Resumo -->
+                    <div class="row mb-4">
+                        <div class="col-xl-3 col-md-6 mb-3">
+                            <div class="card border-primary">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title text-muted">Total Ocorrências</h6>
+                                            <h3 id="totalOcorrenciasRel" class="text-primary">0</h3>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-clipboard-list fa-2x text-primary"></i>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted" id="variacaoOcorrencias">+0% vs período anterior</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-3">
+                            <div class="card border-warning">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title text-muted">Processos Ativos</h6>
+                                            <h3 id="totalProcessosAtivosRel" class="text-warning">0</h3>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-gavel fa-2x text-warning"></i>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted" id="variacaoProcessos">+0% vs período anterior</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-3">
+                            <div class="card border-success">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title text-muted">Taxa de Resolução</h6>
+                                            <h3 id="taxaResolucaoRel" class="text-success">0%</h3>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-chart-line fa-2x text-success"></i>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted" id="variacaoResolucao">+0% vs período anterior</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 mb-3">
+                            <div class="card border-info">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h6 class="card-title text-muted">Alunos com Ocorrências</h6>
+                                            <h3 id="alunosComOcorrenciasRel" class="text-info">0</h3>
+                                        </div>
+                                        <div class="align-self-center">
+                                            <i class="fas fa-users fa-2x text-info"></i>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted" id="variacaoAlunos">+0% vs período anterior</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos Principais -->
+                    <div class="row mb-4">
+                        <div class="col-lg-8 mb-4">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Evolução de Ocorrências por Mês</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="graficoEvolucaoOcorrencias" height="250"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 mb-4">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Distribuição por Gravidade</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="graficoDistribuicaoGravidade" height="250"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos Secundários -->
+                    <div class="row mb-4">
+                        <div class="col-lg-6 mb-4">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Top 10 Alunos com Mais Ocorrências</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="graficoTopAlunos" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 mb-4">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Status dos Processos Disciplinares</h5>
+                                </div>
+                                <div class="card-body">
+                                    <canvas id="graficoStatusProcessos" height="300"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabelas Detalhadas -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Ocorrências Recentes</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Data</th>
+                                                    <th>Aluno</th>
+                                                    <th>Tipo</th>
+                                                    <th>Gravidade</th>
+                                                    <th>Descrição</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tabelaOcorrenciasRecentes">
+                                                <!-- Preenchido via JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== BACKUP ==================== -->
+                <section id="backup" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Backup e Restauração</h2>
+                        <div class="btn-group">
+                            <button class="btn btn-success" onclick="realizarBackup()">
+                                <i class="fas fa-database me-2"></i>Realizar Backup
+                            </button>
+                            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalRestaurarBackup">
+                                <i class="fas fa-upload me-2"></i>Restaurar Backup
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Status do Sistema -->
+                    <div class="row mb-4">
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card border-primary">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-database fa-2x text-primary mb-3"></i>
+                                    <h4 id="totalBackups">0</h4>
+                                    <p class="text-muted mb-0">Backups Realizados</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card border-success">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-calendar-check fa-2x text-success mb-3"></i>
+                                    <h4 id="ultimoBackup">-</h4>
+                                    <p class="text-muted mb-0">Último Backup</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card border-info">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-hdd fa-2x text-info mb-3"></i>
+                                    <h4 id="tamanhoTotal">0 MB</h4>
+                                    <p class="text-muted mb-0">Espaço Utilizado</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card border-warning">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-bell fa-2x text-warning mb-3"></i>
+                                    <h4 id="statusBackupAuto">Inativo</h4>
+                                    <p class="text-muted mb-0">Backup Automático</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configurações de Backup -->
+                    <div class="row">
+                        <div class="col-lg-8 mb-4">
+                            <div class="card">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Backups Realizados</h5>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="toggleAutoBackup">
+                                        <label class="form-check-label" for="toggleAutoBackup">Backup Automático</label>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Data/Hora</th>
+                                                    <th>Tamanho</th>
+                                                    <th>Itens</th>
+                                                    <th>Tipo</th>
+                                                    <th>Status</th>
+                                                    <th>Ações</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tabelaBackups">
+                                                <!-- Preenchido via JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <!-- Configurações -->
+                            <div class="card mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Configurações de Backup</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Frequência do Backup Automático</label>
+                                        <select class="form-control" id="frequenciaBackup">
+                                            <option value="diario">Diário</option>
+                                            <option value="semanal">Semanal</option>
+                                            <option value="quinzenal">Quinzenal</option>
+                                            <option value="mensal">Mensal</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Manter últimos backups</label>
+                                        <select class="form-control" id="manterBackups">
+                                            <option value="5">5 backups</option>
+                                            <option value="10">10 backups</option>
+                                            <option value="20">20 backups</option>
+                                            <option value="50">50 backups</option>
+                                            <option value="0">Todos</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Itens para Backup</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="backupAlunos" checked>
+                                            <label class="form-check-label" for="backupAlunos">Dados dos Alunos</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="backupOcorrencias" checked>
+                                            <label class="form-check-label" for="backupOcorrencias">Ocorrências</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="backupProcessos" checked>
+                                            <label class="form-check-label" for="backupProcessos">Processos Disciplinares</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="backupUsuarios" checked>
+                                            <label class="form-check-label" for="backupUsuarios">Usuários do Sistema</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="backupConfiguracoes" checked>
+                                            <label class="form-check-label" for="backupConfiguracoes">Configurações</label>
+                                        </div>
+                                    </div>
+                                    
+                                    <button class="btn btn-primary w-100" onclick="salvarConfiguracoesBackup()">
+                                        <i class="fas fa-save me-2"></i>Salvar Configurações
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Ações Rápidas -->
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Ações Rápidas</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-warning" onclick="limparBackupsAntigos()">
+                                            <i class="fas fa-broom me-2"></i>Limpar Backups Antigos
+                                        </button>
+                                        <button class="btn btn-outline-info" onclick="exportarDadosCompletos()">
+                                            <i class="fas fa-file-export me-2"></i>Exportar Todos os Dados
+                                        </button>
+                                        <button class="btn btn-outline-danger" onclick="limparDadosSistema()">
+                                            <i class="fas fa-trash-alt me-2"></i>Limpar Todos os Dados
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==================== NOTIFICAÇÕES ==================== -->
+                <section id="notificacoes" class="content-section d-none">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2>Notificações e Alertas</h2>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="marcarTodasComoLidas()">
+                                <i class="fas fa-check-double me-2"></i>Marcar Todas como Lidas
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="limparNotificacoes()">
+                                <i class="fas fa-trash me-2"></i>Limpar Todas
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Estatísticas Rápidas -->
+                    <div class="row mb-4">
+                        <div class="col-xl-2 col-md-4 mb-3">
+                            <div class="card border-primary">
+                                <div class="card-body text-center p-3">
+                                    <i class="fas fa-bell fa-2x text-primary mb-2"></i>
+                                    <h4 id="totalNotificacoes">0</h4>
+                                    <small class="text-muted">Total</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-2 col-md-4 mb-3">
+                            <div class="card border-warning">
+                                <div class="card-body text-center p-3">
+                                    <i class="fas fa-envelope fa-2x text-warning mb-2"></i>
+                                    <h4 id="naoLidasNotificacoes">0</h4>
+                                    <small class="text-muted">Não Lidas</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-2 col-md-4 mb-3">
+                            <div class="card border-danger">
+                                <div class="card-body text-center p-3">
+                                    <i class="fas fa-exclamation-triangle fa-2x text-danger mb-2"></i>
+                                    <h4 id="urgentesNotificacoes">0</h4>
+                                    <small class="text-muted">Urgentes</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-2 col-md-4 mb-3">
+                            <div class="card border-info">
+                                <div class="card-body text-center p-3">
+                                    <i class="fas fa-clock fa-2x text-info mb-2"></i>
+                                    <h4 id="hojeNotificacoes">0</h4>
+                                    <small class="text-muted">Hoje</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-2 col-md-4 mb-3">
+                            <div class="card border-success">
+                                <div class="card-body text-center p-3">
+                                    <i class="fas fa-user-graduate fa-2x text-success mb-2"></i>
+                                    <h4 id="alunosNotificacoes">0</h4>
+                                    <small class="text-muted">Alertas Alunos</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl-2 col-md-4 mb-3">
+                            <div class="card border-secondary">
+                                <div class="card-body text-center p-3">
+                                    <i class="fas fa-gavel fa-2x text-secondary mb-2"></i>
+                                    <h4 id="processosNotificacoes">0</h4>
+                                    <small class="text-muted">Alertas Processos</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filtros e Configurações -->
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Filtros de Notificações</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Tipo</label>
+                                            <select class="form-control" id="filtroTipoNotificacao">
+                                                <option value="todos">Todos os Tipos</option>
+                                                <option value="sistema">Sistema</option>
+                                                <option value="aluno">Aluno</option>
+                                                <option value="processo">Processo</option>
+                                                <option value="seguranca">Segurança</option>
+                                                <option value="backup">Backup</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Prioridade</label>
+                                            <select class="form-control" id="filtroPrioridadeNotificacao">
+                                                <option value="todas">Todas</option>
+                                                <option value="baixa">Baixa</option>
+                                                <option value="normal">Normal</option>
+                                                <option value="alta">Alta</option>
+                                                <option value="urgente">Urgente</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Status</label>
+                                            <select class="form-control" id="filtroStatusNotificacao">
+                                                <option value="todos">Todos</option>
+                                                <option value="nao_lida">Não Lidas</option>
+                                                <option value="lida">Lidas</option>
+                                                <option value="arquivada">Arquivadas</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12">
+                                            <button class="btn btn-primary" onclick="aplicarFiltrosNotificacoes()">
+                                                <i class="fas fa-filter me-2"></i>Aplicar Filtros
+                                            </button>
+                                            <button class="btn btn-outline-secondary" onclick="limparFiltrosNotificacoes()">
+                                                <i class="fas fa-times me-2"></i>Limpar Filtros
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Configurações de Alertas</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="alertasEmail" checked>
+                                        <label class="form-check-label" for="alertasEmail">Notificações por Email</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="alertasSistema" checked>
+                                        <label class="form-check-label" for="alertasSistema">Notificações no Sistema</label>
+                                    </div>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" id="alertasSonoros">
+                                        <label class="form-check-label" for="alertasSonoros">Alertas Sonoros</label>
+                                    </div>
+                                    <button class="btn btn-outline-primary w-100" onclick="salvarConfiguracoesAlertas()">
+                                        <i class="fas fa-save me-2"></i>Salvar Configurações
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Notificações -->
+                    <div class="card">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Notificações do Sistema</h5>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="autoRefreshNotificacoes" checked>
+                                <label class="form-check-label" for="autoRefreshNotificacoes">Atualização Automática</label>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="listaNotificacoes">
+                                <!-- Notificações serão carregadas aqui -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- Modal Aluno -->
+    <div class="modal fade" id="modalAluno" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cadastrar Aluno</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAluno">
+                        <div class="mb-3">
+                            <label class="form-label">Nome Completo</label>
+                            <input type="text" class="form-control" id="nomeAluno" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Matrícula</label>
+                            <input type="text" class="form-control" id="matriculaAluno" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Curso</label>
+                            <input type="text" class="form-control" id="cursoAluno" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Data de Nascimento</label>
+                            <input type="date" class="form-control" id="nascimentoAluno">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarAluno()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Ocorrência -->
+    <div class="modal fade" id="modalOcorrencia" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Registrar Ocorrência</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formOcorrencia">
+                        <div class="mb-3">
+                            <label class="form-label">Aluno</label>
+                            <select class="form-control" id="alunoOcorrencia" required>
+                                <option value="">Selecione o aluno</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Ocorrência</label>
+                            <select class="form-control" id="tipoOcorrencia" required>
+                                <option value="">Selecione o tipo</option>
+                                <option value="leve">Leve</option>
+                                <option value="grave">Grave</option>
+                                <option value="gravissima">Gravíssima</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descrição</label>
+                            <textarea class="form-control" id="descricaoOcorrencia" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Artigo do Regulamento</label>
+                            <input type="text" class="form-control" id="artigoOcorrencia">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarOcorrencia()">Registrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Processo Disciplinar -->
+    <div class="modal fade" id="modalProcesso" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Abrir Processo Disciplinar</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formProcesso">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Aluno*</label>
+                                    <select class="form-control" id="alunoProcesso" required>
+                                        <option value="">Selecione o aluno</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Tipo de Infração*</label>
+                                    <select class="form-control" id="tipoInfracao" required>
+                                        <option value="">Selecione o tipo</option>
+                                        <option value="leve">Leve (Art. 6º, I-IV)</option>
+                                        <option value="grave">Grave (Art. 6º, V-XIII)</option>
+                                        <option value="gravissima">Gravíssima (Art. 6º, XIV-XXIV)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Artigo do Regulamento*</label>
+                            <input type="text" class="form-control" id="artigoProcesso" required 
+                                   placeholder="Ex: Art. 6º, inciso XV">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Descrição Detalhada da Infração*</label>
+                            <textarea class="form-control" id="descricaoProcesso" rows="4" required
+                                      placeholder="Descreva detalhadamente os fatos..."></textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Data da Ocorrência*</label>
+                                    <input type="date" class="form-control" id="dataOcorrencia" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Local da Ocorrência*</label>
+                                    <input type="text" class="form-control" id="localOcorrencia" required
+                                           placeholder="Ex: Sala de aula, Pátio, Laboratório...">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Testemunhas (se houver)</label>
+                            <textarea class="form-control" id="testemunhasProcesso" rows="2"
+                                      placeholder="Nome das testemunhas, separadas por vírgula"></textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Providências Imediatas</label>
+                            <select class="form-control" id="providenciasImediatas">
+                                <option value="">Nenhuma</option>
+                                <option value="afastamento_cautelar">Afastamento Cautelar</option>
+                                <option value="suspensao_emergencial">Suspensão Emergencial</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarProcesso()">Abrir Processo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detalhes Processo -->
+    <div class="modal fade" id="modalDetalhesProcesso" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Processo Disciplinar - <span id="numeroProcessoDetalhes"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Informações do Processo</h6>
+                            <table class="table table-sm">
+                                <tr>
+                                    <th width="40%">Aluno:</th>
+                                    <td id="detalheAluno"></td>
+                                </tr>
+                                <tr>
+                                    <th>Matrícula:</th>
+                                    <td id="detalheMatricula"></td>
+                                </tr>
+                                <tr>
+                                    <th>Data Abertura:</th>
+                                    <td id="detalheDataAbertura"></td>
+                                </tr>
+                                <tr>
+                                    <th>Status:</th>
+                                    <td id="detalheStatus"></td>
+                                </tr>
+                                <tr>
+                                    <th>Gravidade:</th>
+                                    <td id="detalheGravidade"></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Andamento do Processo</h6>
+                            <div id="timelineProcesso">
+                                <!-- Timeline será preenchida via JS -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6>Histórico de Andamentos</h6>
+                        <div id="historicoAndamentos">
+                            <!-- Histórico será preenchido via JS -->
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6>Ações do Processo</h6>
+                        <div class="btn-group" id="botoesAcoesProcesso">
+                            <!-- Botões de ação serão preenchidos via JS -->
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" onclick="imprimirProcesso()">
+                        <i class="fas fa-print me-2"></i>Imprimir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Restaurar Backup -->
+    <div class="modal fade" id="modalRestaurarBackup" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Restaurar Backup</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Atenção:</strong> A restauração de backup substituirá todos os dados atuais do sistema. 
+                        Esta ação não pode ser desfeita.
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Selecionar Backup para Restaurar</label>
+                        <select class="form-control" id="selectBackupRestaurar">
+                            <option value="">Selecione um backup...</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Ou fazer upload de arquivo de backup</label>
+                        <input type="file" class="form-control" id="uploadBackup" accept=".json,.backup">
+                        <small class="form-text text-muted">Formatos suportados: JSON, BACKUP</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Itens para Restaurar</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="restaurarAlunos" checked>
+                            <label class="form-check-label" for="restaurarAlunos">Dados dos Alunos</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="restaurarOcorrencias" checked>
+                            <label class="form-check-label" for="restaurarOcorrencias">Ocorrências</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="restaurarProcessos" checked>
+                            <label class="form-check-label" for="restaurarProcessos">Processos Disciplinares</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="restaurarUsuarios">
+                            <label class="form-check-label" for="restaurarUsuarios">Usuários do Sistema</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="restaurarConfiguracoes" checked>
+                            <label class="form-check-label" for="restaurarConfiguracoes">Configurações</label>
+                        </div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="backupAntesRestaurar">
+                        <label class="form-check-label" for="backupAntesRestaurar">
+                            Fazer backup dos dados atuais antes de restaurar
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" onclick="iniciarRestauracao()">
+                        <i class="fas fa-upload me-2"></i>Iniciar Restauração
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Progresso Backup -->
+    <div class="modal fade" id="modalProgressoBackup" tabindex="-1" data-bs-backdrop="static">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloProgressoBackup">Realizando Backup</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="progress mb-3" style="height: 20px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                             id="progressoBackupBar" style="width: 0%"></div>
+                    </div>
+                    <p class="text-center mb-0" id="textoProgressoBackup">Preparando backup...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Detalhes Notificação -->
+    <div class="modal fade" id="modalDetalhesNotificacao" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloDetalhesNotificacao">Detalhes da Notificação</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <strong>Data:</strong> <span id="detalhesDataNotificacao"></span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Prioridade:</strong> <span id="detalhesPrioridadeNotificacao"></span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Categoria:</strong> <span id="detalhesCategoriaNotificacao"></span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Mensagem:</strong>
+                        <p id="detalhesMensagemNotificacao" class="mt-2 p-3 bg-light rounded"></p>
+                    </div>
+                    <div id="detalhesAcoesNotificacao">
+                        <!-- Ações específicas serão carregadas aqui -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" onclick="marcarComoLidaModal()">Marcar como Lida</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container para Notificações em Tempo Real -->
+    <div id="toastContainer" class="position-fixed top-0 end-0 p-3" style="z-index: 1055;"></div>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/database.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/backup.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/notifications-dropdown.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+</html>

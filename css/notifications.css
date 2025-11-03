@@ -1,0 +1,255 @@
+/* Sistema de Notificações */
+.notification-item {
+    border-left: 4px solid transparent;
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+}
+
+.notification-item.nao-lida {
+    background-color: #f0f9ff;
+    border-left-color: var(--primary-color);
+}
+
+.notification-item.urgente {
+    background-color: #fff3cd;
+    border-left-color: var(--warning-color);
+}
+
+.notification-item.critica {
+    background-color: #f8d7da;
+    border-left-color: var(--danger-color);
+}
+
+.notification-item.lida {
+    opacity: 0.7;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.notification-icon.sistema { background-color: #e3f2fd; color: var(--primary-color); }
+.notification-icon.aluno { background-color: #e8f5e8; color: var(--success-color); }
+.notification-icon.processo { background-color: #fff3e0; color: var(--warning-color); }
+.notification-icon.seguranca { background-color: #ffebee; color: var(--danger-color); }
+.notification-icon.backup { background-color: #e3f2fd; color: var(--info-color); }
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.notification-message {
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.notification-meta {
+    font-size: 0.75rem;
+    color: #6c757d;
+}
+
+.notification-badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.notification-actions {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.notification-item:hover .notification-actions {
+    opacity: 1;
+}
+
+/* Toast Notifications */
+.toast-notification {
+    min-width: 300px;
+    max-width: 400px;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: none;
+    border-left: 4px solid transparent;
+}
+
+.toast-notification.success { border-left-color: var(--success-color); }
+.toast-notification.warning { border-left-color: var(--warning-color); }
+.toast-notification.danger { border-left-color: var(--danger-color); }
+.toast-notification.info { border-left-color: var(--info-color); }
+.toast-notification.primary { border-left-color: var(--primary-color); }
+
+.toast-header {
+    border: none;
+    padding: 0.75rem 1rem 0.5rem;
+}
+
+.toast-body {
+    padding: 0.5rem 1rem 0.75rem;
+}
+
+/* Badges na navbar */
+.navbar-notification-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Filtros */
+.filter-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.filter-tag {
+    background: #e9ecef;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-tag.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.filter-tag:hover {
+    background: #dee2e6;
+}
+
+.filter-tag.active:hover {
+    background: #0056b3;
+}
+
+/* Animações */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.toast-show {
+    animation: slideInRight 0.3s ease-out;
+}
+
+.notification-pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Prioridades */
+.prioridade-baixa { color: var(--success-color); }
+.prioridade-normal { color: var(--primary-color); }
+.prioridade-alta { color: var(--warning-color); }
+.prioridade-urgente { color: var(--danger-color); }
+
+/* Estados de leitura */
+.notification-unread-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--danger-color);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .notification-actions {
+        opacity: 1;
+    }
+    
+    .toast-notification {
+        min-width: 280px;
+        max-width: 280px;
+    }
+    
+    .notification-item {
+        padding: 0.75rem;
+    }
+    
+    .notification-icon {
+        width: 32px;
+        height: 32px;
+        margin-right: 0.75rem;
+    }
+    
+    .filter-tags {
+        justify-content: center;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .notification-item.nao-lida {
+        background-color: #1e3a5f;
+    }
+    
+    .notification-item.urgente {
+        background-color: #332701;
+    }
+    
+    .notification-item.critica {
+        background-color: #3c1a1a;
+    }
+}
+
+/* Empty state */
+.notifications-empty {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: #6c757d;
+}
+
+.notifications-empty i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
