@@ -41,71 +41,7 @@ class AuthSystem {
     // Cria usuários padrão com senhas temporárias (hash)
     createDefaultUsers() {
         const defaultUsers = [
-            {
-                id: 1,
-                username: 'admin.saa',
-                password: this.hashPassword('Adm@SAA2025'),
-                nome: 'Administrador Sistema',
-                email: 'admin@institucional.edu.br',
-                tipo: 'admin',
-                permissoes: ['*'],
-                ativo: true,
-                dataCriacao: new Date().toISOString(),
-                senhaTemporaria: true
-            },
-            {
-                id: 2,
-                username: 'coord.saa',
-                password: this.hashPassword('Coord@SAA2025'),
-                nome: 'Coordenador Pedagógico',
-                email: 'coordenacao@institucional.edu.br',
-                tipo: 'coordenador',
-                permissoes: [
-                    'alunos.ver', 'alunos.editar',
-                    'ocorrencias.*',
-                    'processos.*',
-                    'relatorios.ver',
-                    'notificacoes.ver'
-                ],
-                ativo: true,
-                dataCriacao: new Date().toISOString(),
-                senhaTemporaria: true
-            },
-            {
-                id: 3,
-                username: 'prof.saa',
-                password: this.hashPassword('Prof@SAA2025'),
-                nome: 'Professor',
-                email: 'docente@institucional.edu.br',
-                tipo: 'professor',
-                permissoes: [
-                    'alunos.ver',
-                    'ocorrencias.criar', 'ocorrencias.ver',
-                    'processos.ver',
-                    'notificacoes.ver'
-                ],
-                ativo: true,
-                dataCriacao: new Date().toISOString(),
-                senhaTemporaria: true
-            },
-            {
-                id: 4,
-                username: 'sec.saa',
-                password: this.hashPassword('Sec@SAA2025'),
-                nome: 'Secretaria Acadêmica',
-                email: 'secretaria@institucional.edu.br',
-                tipo: 'secretaria',
-                permissoes: [
-                    'alunos.*',
-                    'ocorrencias.ver',
-                    'processos.ver',
-                    'relatorios.ver'
-                ],
-                ativo: true,
-                dataCriacao: new Date().toISOString(),
-                senhaTemporaria: true
-            }
-        ];
+ 
 
         localStorage.setItem('saa_users', JSON.stringify(defaultUsers));
     }
