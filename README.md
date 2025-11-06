@@ -54,3 +54,20 @@ Se quiser, eu posso também criar um `.github` workflow básico para CI ou ajuda
 
 Contato
 - Se quiser que eu finalize a configuração do Firebase (armazenamento de configurações do usuário no Firestore, autenticação, regras), diga qual fluxo de autenticação você usa (anon, email/senha, firebase auth custom) para eu adaptar o código.
+
+Resetar usuários padrão (local)
+--
+Se precisar restaurar os usuários padrão no ambiente local (útil para desenvolvimento), abra o console do navegador na página de login (`F12`) e execute:
+
+```js
+// Recria os usuários padrão com senhas temporárias
+auth.resetDefaultUsers();
+```
+
+Após executar, as credenciais temporárias padrão serão:
+- admin.saa / Adm@SAA2025
+- coord.saa / Coord@SAA2025
+- prof.saa / Prof@SAA2025
+- sec.saa / Sec@SAA2025
+
+Observação: as senhas estão marcadas como temporárias e o sistema solicitará alteração no primeiro login.
