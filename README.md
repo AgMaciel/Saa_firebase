@@ -65,9 +65,6 @@ auth.resetDefaultUsers();
 ```
 
 Após executar, as credenciais temporárias padrão serão:
-- admin.saa / Adm@SAA2025
-- coord.saa / Coord@SAA2025
-- prof.saa / Prof@SAA2025
-- sec.saa / Sec@SAA2025
-
+- as definidas pelo usuário;
+- 
 Observação: as senhas estão marcadas como temporárias e o sistema solicitará alteração no primeiro login.
