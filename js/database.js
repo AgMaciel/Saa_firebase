@@ -1,19 +1,21 @@
 /**
  * SAA - Sistema de Gestão Discente
- * Gerenciamento de Banco de Dados Local (LocalStorage)
- * Versão: 1.0.0
+ * Gerenciamento de Banco de Dados Híbrido (LocalStorage + Firestore)
+ * Versão: 2.0.0
  */
 
 class Database {
     constructor() {
+        this.useFirestore = false;
+        this.db = null;
         this.init();
     }
 
     init() {
-        // Inicializar collections se não existirem
+        // Inicializar collections locais se não existirem
         const collections = [
             'saa_alunos',
-            'saa_ocorrencias', 
+            'saa_ocorrencias',
             'saa_processos',
             'saa_users',
             'saa_access_logs',
@@ -29,7 +31,75 @@ class Database {
             }
         });
 
+        // Tentar conectar ao Firebase
+        this.initFirebase();
+
         console.log('✅ Banco de dados inicializado');
+    }
+
+    initFirebase() {
+        try {
+            if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+                this.db = firebase.firestore();
+                this.useFirestore = true;
+                console.log('🔥 Conectado ao Firestore (Modo Híbrido)');
+                this.syncFromFirestore();
+            } else if (window.firebaseConfig && typeof firebase !== 'undefined') {
+                firebase.initializeApp(window.firebaseConfig);
+                this.db = firebase.firestore();
+                this.useFirestore = true;
+                console.log('🔥 Inicializado e conectado ao Firestore');
+                this.syncFromFirestore();
+            }
+        } catch (e) {
+            console.warn('⚠️ Erro ao conectar Firebase:', e);
+            this.useFirestore = false;
+        }
+    }
+
+    // Sincroniza dados do Firestore para LocalStorage ao iniciar
+    async syncFromFirestore() {
+        if (!this.useFirestore) return;
+
+        const collectionsToSync = [
+            { firebase: 'alunos', local: 'saa_alunos' },
+            { firebase: 'ocorrencias', local: 'saa_ocorrencias' },
+            { firebase: 'processos', local: 'saa_processos' },
+            { firebase: 'users', local: 'saa_users' }
+        ];
+
+        collectionsToSync.forEach(col => {
+            this.db.collection(col.firebase).get().then(snapshot => {
+                const cloudData = snapshot.docs.map(doc => doc.data());
+                if (cloudData.length > 0) {
+                    localStorage.setItem(col.local, JSON.stringify(cloudData));
+                    console.log(`🔄 Sincronizado ${col.local} com Firestore (${cloudData.length} registros)`);
+                    // Disparar evento para atualizar UI se necessário
+                    window.dispatchEvent(new CustomEvent('databaseUpdated', { detail: { collection: col.local } }));
+                }
+            }).catch(err => console.error(`Erro sync ${col.firebase}:`, err));
+        });
+    }
+
+    // Helper para salvar no Firestore
+    async firestoreSave(collection, docId, data) {
+        if (this.useFirestore && this.db) {
+            try {
+                await this.db.collection(collection).doc(docId.toString()).set(data);
+            } catch (e) {
+                console.error(`Erro salvando em ${collection}:`, e);
+            }
+        }
+    }
+
+    async firestoreDelete(collection, docId) {
+        if (this.useFirestore && this.db) {
+            try {
+                await this.db.collection(collection).doc(docId.toString()).delete();
+            } catch (e) {
+                console.error(`Erro deletando de ${collection}:`, e);
+            }
+        }
     }
 
     // ==================== ALUNOS ====================
@@ -44,6 +114,8 @@ class Database {
         aluno.status = 'ativo';
         alunos.push(aluno);
         localStorage.setItem('saa_alunos', JSON.stringify(alunos));
+
+        this.firestoreSave('alunos', aluno.id, aluno);
         return aluno;
     }
 
@@ -53,6 +125,8 @@ class Database {
         if (index !== -1) {
             alunos[index] = { ...alunos[index], ...dadosAtualizados };
             localStorage.setItem('saa_alunos', JSON.stringify(alunos));
+
+            this.firestoreSave('alunos', alunoId, alunos[index]);
             return alunos[index];
         }
         return null;
@@ -64,6 +138,8 @@ class Database {
         if (index !== -1) {
             const alunoRemovido = alunos.splice(index, 1)[0];
             localStorage.setItem('saa_alunos', JSON.stringify(alunos));
+
+            this.firestoreDelete('alunos', alunoId);
             return alunoRemovido;
         }
         return null;
@@ -80,6 +156,8 @@ class Database {
         ocorrencia.dataRegistro = new Date().toISOString();
         ocorrencias.push(ocorrencia);
         localStorage.setItem('saa_ocorrencias', JSON.stringify(ocorrencias));
+
+        this.firestoreSave('ocorrencias', ocorrencia.id, ocorrencia);
         return ocorrencia;
     }
 
@@ -95,7 +173,7 @@ class Database {
         processo.dataAbertura = new Date().toISOString();
         processo.status = 'aberto';
         processo.prazo = this.calcularPrazoProcesso();
-        
+
         // Timeline inicial
         processo.timeline = [{
             data: new Date().toISOString(),
@@ -103,9 +181,11 @@ class Database {
             descricao: 'Processo disciplinar iniciado',
             usuario: 'Sistema'
         }];
-        
+
         processos.push(processo);
         localStorage.setItem('saa_processos', JSON.stringify(processos));
+
+        this.firestoreSave('processos', processo.id, processo);
         return processo;
     }
 
@@ -115,6 +195,8 @@ class Database {
         if (index !== -1) {
             processos[index] = { ...processos[index], ...processoAtualizado };
             localStorage.setItem('saa_processos', JSON.stringify(processos));
+
+            this.firestoreSave('processos', processoAtualizado.id, processos[index]);
             return processos[index];
         }
         return null;
@@ -126,10 +208,10 @@ class Database {
         if (processo) {
             andamento.data = new Date().toISOString();
             andamento.id = this.gerarId();
-            
+
             if (!processo.andamentos) processo.andamentos = [];
             processo.andamentos.push(andamento);
-            
+
             // Atualizar timeline
             processo.timeline.push({
                 data: andamento.data,
@@ -137,8 +219,10 @@ class Database {
                 descricao: andamento.descricao,
                 usuario: 'Sistema'
             });
-            
+
             localStorage.setItem('saa_processos', JSON.stringify(processos));
+
+            this.firestoreSave('processos', processoId, processo);
             return andamento;
         }
         return null;
@@ -155,6 +239,8 @@ class Database {
         if (index !== -1) {
             users[index] = { ...users[index], ...updates };
             localStorage.setItem('saa_users', JSON.stringify(users));
+
+            this.firestoreSave('users', userId, users[index]);
             return users[index];
         }
         return null;
@@ -170,6 +256,8 @@ class Database {
         };
         users.push(newUser);
         localStorage.setItem('saa_users', JSON.stringify(users));
+
+        this.firestoreSave('users', newUser.id, newUser);
         return newUser;
     }
 
@@ -180,17 +268,19 @@ class Database {
 
     registrarLogAcesso(user) {
         const logs = this.getAccessLogs();
-        logs.push({
+        const log = {
             userId: user.id,
             username: user.username,
             tipo: user.tipo,
             dataAcesso: new Date().toISOString(),
             ip: 'localhost'
-        });
+        };
+        logs.push(log);
         localStorage.setItem('saa_access_logs', JSON.stringify(logs));
+        // Logs não precisam necessariamente ser synced sempre, mas ok
     }
 
-    // ==================== BACKUPS ====================
+    // ==================== BACKUPS (LocalOnly por enquanto, ou sync) ====================
     getBackups() {
         return JSON.parse(localStorage.getItem('saa_backups')) || [];
     }
@@ -201,7 +291,7 @@ class Database {
         localStorage.setItem('saa_backups', JSON.stringify(backups));
     }
 
-    // ==================== NOTIFICAÇÕES ====================
+    // ==================== NOTIFICAÇÕES (Já tratado no notifications.js, mas mantemos interface) ====================
     getNotificacoes() {
         return JSON.parse(localStorage.getItem('saa_notifications')) || [];
     }
@@ -210,6 +300,7 @@ class Database {
         const notificacoes = this.getNotificacoes();
         notificacoes.unshift(notificacao);
         localStorage.setItem('saa_notifications', JSON.stringify(notificacoes));
+        // notificationSystem já cuida do Firestore
     }
 
     atualizarNotificacao(notificacaoId, updates) {
@@ -237,7 +328,7 @@ class Database {
 
     calcularPrazoProcesso() {
         const data = new Date();
-        data.setDate(data.getDate() + 20); // 20 dias úteis conforme regulamento
+        data.setDate(data.getDate() + 20); // 20 dias úteis
         return data.toISOString();
     }
 
@@ -270,12 +361,10 @@ class Database {
         const dataLimite = new Date();
         dataLimite.setDate(dataLimite.getDate() - dias);
 
-        // Limpar logs antigos
         const logs = this.getAccessLogs();
         const logsAtualizados = logs.filter(log => new Date(log.dataAcesso) > dataLimite);
         localStorage.setItem('saa_access_logs', JSON.stringify(logsAtualizados));
 
-        // Limpar notificações antigas
         const notificacoes = this.getNotificacoes();
         const notificacoesAtualizadas = notificacoes.filter(notif => new Date(notif.data) > dataLimite);
         localStorage.setItem('saa_notifications', JSON.stringify(notificacoesAtualizadas));
@@ -297,7 +386,7 @@ class Database {
             notificacoes: this.getNotificacoes(),
             metadata: {
                 dataExportacao: new Date().toISOString(),
-                versao: '1.0.0',
+                versao: '2.0.0',
                 totalRegistros: this.getAlunos().length + this.getOcorrencias().length + this.getProcessos().length
             }
         };
@@ -311,7 +400,7 @@ class Database {
             if (dados.usuarios) localStorage.setItem('saa_users', JSON.stringify(dados.usuarios));
             if (dados.backups) localStorage.setItem('saa_backups', JSON.stringify(dados.backups));
             if (dados.notificacoes) localStorage.setItem('saa_notifications', JSON.stringify(dados.notificacoes));
-            
+
             return { success: true, message: 'Dados importados com sucesso' };
         } catch (error) {
             return { success: false, message: 'Erro ao importar dados: ' + error.message };
@@ -323,7 +412,7 @@ class Database {
         const backupData = this.exportarDados();
         backupData.tipo = 'automatico';
         backupData.nome = `Backup_auto_${new Date().toLocaleDateString('pt-BR')}`;
-        
+
         this.salvarBackup(backupData);
         return backupData;
     }
